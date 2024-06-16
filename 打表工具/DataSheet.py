@@ -58,6 +58,9 @@ class DataSheet(object):
         if self.keyIndex != -1:
             self.isValid = True
     
+    def IsValid(self):
+        return self.isValid
+    
     def ExportCSV(self, path, filename, sheet):
         file = OpenFile('{0}/{1}.csv'.format(path, filename), 'w')
         
@@ -138,7 +141,7 @@ class DataSheet(object):
                     struct.pack_into('b', dataBytes, index, bool(value))
                     index += 1
                 elif dataProperty.type == DATA_PROPERTY_TYPE_INT:
-                    struct.pack_into('i', dataBytes, index, int(value))
+                    struct.pack_into('i', dataBytes, index, self._GetIntValue(value))
                     index += 4
                 elif dataProperty.type == DATA_PROPERTY_TYPE_FLOAT:
                     struct.pack_into('i', dataBytes, index, float(value))
@@ -169,7 +172,7 @@ class DataSheet(object):
         if dataProperty.type == DATA_PROPERTY_TYPE_BOOL:
             struct.pack_into('ib', dataBytes, 0, 1, bool(key))
         elif dataProperty.type == DATA_PROPERTY_TYPE_INT:
-            struct.pack_into('ii', dataBytes, 0, 4, int(key))
+            struct.pack_into('ii', dataBytes, 0, 4, self._GetIntValue(key))
         elif dataProperty.type == DATA_PROPERTY_TYPE_FLOAT:
             struct.pack_into('if', dataBytes, 0, 4, float(key))
         elif dataProperty.type == DATA_PROPERTY_TYPE_STRING:
@@ -178,6 +181,8 @@ class DataSheet(object):
             struct.pack_into('i{0}s'.format(size), dataBytes, 0, 4, size, key.encode('UTF-8'))
         
         file.write(dataBytes)
-
-    def IsValid(self):
-        return self.isValid
+    
+    def _GetIntValue(self, value):
+        if len('{0}'.format(value)) == 0:
+            return 0
+        return int(value)
