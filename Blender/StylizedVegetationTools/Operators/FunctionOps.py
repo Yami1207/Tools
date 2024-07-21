@@ -10,7 +10,9 @@ class MatcapRenderOperator(bpy.types.Operator):
         return True
 
     def invoke(self, context, event):
-        bpy.ops.object.mode_set(mode = "OBJECT", toggle = False)
+        if bpy.context.object.mode != "OBJECT":
+            bpy.ops.object.mode_set(mode = "OBJECT", toggle = False)
+        
         context.space_data.shading.type = 'SOLID'
         context.space_data.shading.light = 'MATCAP'
         context.space_data.shading.studio_light = 'check_normal+y.exr'
@@ -26,5 +28,20 @@ class RenderVertexColorOperator(bpy.types.Operator):
 
     def invoke(self, context, event):
         context.space_data.shading.light = 'FLAT'
-        bpy.ops.object.mode_set(mode = "VERTEX_PAINT", toggle = False)
+
+        if bpy.context.object.mode != "VERTEX_PAINT":
+            bpy.ops.object.mode_set(mode = "VERTEX_PAINT", toggle = False)
+        
+        return {"FINISHED"}
+    
+class ToggleObjectModeOperator(bpy.types.Operator):
+    bl_idname = "stylized_vegetation_tools.toggle_object_mode_operator"
+    bl_label = 'Toggle Object Mode'
+
+    @classmethod
+    def poll(cls, context):
+        return True
+
+    def invoke(self, context, event):
+        bpy.ops.object.mode_set(mode = 'OBJECT')
         return {"FINISHED"}

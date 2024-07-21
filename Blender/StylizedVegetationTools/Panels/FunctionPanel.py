@@ -13,4 +13,6 @@ class FunctionPanel(BasePanel, Panel):
     def draw(self, context: bpy.types.Context):
         viewOptionColumn = self.layout.column()
         viewOptionColumn.operator(MatcapRenderOperator.bl_idname, text = "Matcap Render")
-        viewOptionColumn.operator(RenderVertexColorOperator.bl_idname, text = "Render Vertex Color")
+
+        if context.active_object is not None:
+            viewOptionColumn.operator(RenderVertexColorOperator.bl_idname, text = "Render Vertex Color")

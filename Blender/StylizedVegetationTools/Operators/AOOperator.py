@@ -100,23 +100,21 @@ class AOOperator(bpy.types.Operator):
     def SaveAOToVertexColor(self, select, vertSignedDistance):
         mesh = select.data
 
-        # 删除Attribute数据
-        attributes = mesh.attributes
-        index = attributes.find("Attribute")
-        if index != -1:
-            attributes.remove(attributes[index])
-
         # 创建顶点color
         if not mesh.color_attributes:
             mesh.color_attributes.new("Color", 'FLOAT_COLOR', 'POINT')
         
         # 设置顶点颜色
         colorAttr = mesh.attributes.active_color
-        if len(vertSignedDistance) == len(colorAttr.data):
-            index = 0
-            for datum in colorAttr.data:
-                d = vertSignedDistance[index]
-                datum.color = [d, d, d, 1]
-                #datum.color[0] = d
-                index += 1
-
+        if colorAttr.domain == 'CORNER':
+            # 在CORNER中，需要遍历面去设置顶点色
+            for poly in mesh.polygons:
+                for loop_index in range(poly.loop_start, poly.loop_start + poly.loop_total):
+                    index = mesh.loops[loop_index].vertex_index
+                    d = vertSignedDistance[index]
+                    colorAttr.data[index].color[0] = d
+        else:
+            # 直接设置顶点色
+            for i in range(len(vertSignedDistance)):
+                d = vertSignedDistance[i]
+                colorAttr.data[i].color[0] = d
